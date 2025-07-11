@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Atomic Grid SVG Hybrid</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jura:wght@400&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      background: #2D2A30;
+      color: white;
+      font-family: 'Jura', sans-serif;
+    }
+    #mainSVG {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #2D2A30;
+    }
+  </style>
+</head>
+<body>
+  <div style="width: 1500px; margin: 0 auto;">
+  <svg id="mainSVG"></svg>
+  </div>
+  <script>
+    // --- ДАННЫЕ ---
+    const legendData = [
+      { label: "DRAWING", color: "#6C98B0", ellipse: {rx:42, ry:126, rotate:135}, dot: {cx:100, cy:140} },
+      { label: "HANDICRAFT", color: "#B0876C", ellipse: {rx:42, ry:126, rotate:45}, dot: {cx:40, cy:10} },
+      { label: "DATA", color: "#6CB085", ellipse: {rx:42, ry:126, rotate:0}, dot: {cx:35, cy:40} },
+      { label: "DATAVIZ", color: "#976CB0", ellipse: {rx:42, ry:126, rotate:90}, dot: {cx:55, cy:5} }
+    ];
+    const atoms = [
+      { name: "EUGENIA", core: "#C37CA4", speeds: [20, 20, 5, 5] },
+      { name: "TAISIYA Pr", core: "#C37CA4", speeds: [100, 100, 5, 5] },
+      { name: "ANASTASIA", core: "#C37CA4", speeds: [20, 20, 100, 100] },
+      { name: "LISA", core: "#C37CA4", speeds: [100, 20, 5, 5] },
+      { name: "ELENA Tr", core: "#C37CA4", speeds: [20, 20, 5, 5] },
+      { name: "TATIANA", core: "#C37CA4", speeds: [100, 20, 100, 100] },
+      { name: "SLAVA", core: "#C37CA4", speeds: [5, 5, 100, 100] },
+      { name: "SERGEY", core: "#C3BF7C", speeds: [20, 0, 20, 5] },
+      { name: "SVETLANA", core: "#C37CA4", speeds: [20, 20, 20, 5] },
+      { name: "NASTYA", core: "#C37CA4", speeds: [20, 20, 20, 5] },
+      { name: "ALEXANDRA", core: "#C37CA4", speeds: [20, 20, 100, 100] },
+      { name: "CAMILLA Sp", core: "#C37CA4", speeds: [20, 20, 20, 5] },
+      { name: "DAMIRA", core: "#C37CA4", speeds: [100, 20, 20, 5] },
+      { name: "NASTYA", core: "#C37CA4", speeds: [20, 100, 20, 100] },
+      { name: "MARINA Kh", core: "#C37CA4", speeds: [20, 20, 20, 5] },
+      { name: "ALEXEY", core: "#C3BF7C", speeds: [20, 100, 20, 5] },
+      { name: "LENA", core: "#C37CA4", speeds: [20, 20, 100, 100] },
+      { name: "VARVARA", core: "#C37CA4", speeds: [100, 5, 20, 5] },
+      { name: "ANNA", core: "#C37CA4", speeds: [20, 20, 20, 100] },
+      { name: "XENIA", core: "#C37CA4", speeds: [20, 20, 100, 100] }
+    ];
+    const electronColors = ["#6C98B0", "#B0876C", "#6CB085", "#976CB0"];
+    const orbitAngles = [135, 45, 0, 90];
+
+    // --- SVG НАСТРОЙКИ ---
+    const svg = document.getElementById('mainSVG');
+    const svgWidth = 1730;
+    const svgHeight = 2450;
+    svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+
+    // --- ФУНКЦИИ ДЛЯ РИСОВАНИЯ ---
+    function addText({x, y, text, size=27, weight=400, anchor="start", italic=false}) {
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", x);
+      t.setAttribute("y", y);
+      t.setAttribute("font-size", size);
+      t.setAttribute("font-family", "Jura, sans-serif");
+      t.setAttribute("fill", "white");
+      t.setAttribute("font-weight", weight);
+      t.setAttribute("letter-spacing", "0.2em");
+      t.setAttribute("text-anchor", anchor);
+      if (italic) t.setAttribute("font-style", "italic");
+      t.textContent = text;
+      svg.appendChild(t);
+    }
+
+    // Функция для вычисления точки на эллипсе с учётом поворота
+    function getEllipsePoint(cx, cy, rx, ry, angleDeg, rotateDeg) {
+      const theta = angleDeg * Math.PI / 180;
+      let x = rx * Math.cos(theta);
+      let y = ry * Math.sin(theta);
+      const phi = (rotateDeg || 0) * Math.PI / 180;
+      const xRot = x * Math.cos(phi) - y * Math.sin(phi);
+      const yRot = x * Math.sin(phi) + y * Math.cos(phi);
+      return { x: cx + xRot, y: cy + yRot };
+    }
+
+    // Основная вертикаль
+    const baseX = 75;
+    const infoBlockX = baseX + 40; // смещение правее
+
+    // Заголовок и подзаголовок
+    addText({x: baseX, y: 125, text: "DATA BADGES // CODE-NAME 'FLOWERS & NUMBERS'", size: 48});
+    addText({x: infoBlockX, y: 225, text: "HOW TO READ:", size: 40});
+
+    // F/M
+      let f = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    f.setAttribute("cx", infoBlockX + 15); f.setAttribute("cy", 310); f.setAttribute("r", 14); f.setAttribute("fill", "#C37CA4");
+      svg.appendChild(f);
+    addText({x: infoBlockX + 45, y: 320, text: "F", size: 30});
+      let m = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    m.setAttribute("cx", infoBlockX + 165); m.setAttribute("cy", 310); m.setAttribute("r", 14); m.setAttribute("fill", "#C3BF7C");
+      svg.appendChild(m);
+    addText({x: infoBlockX + 195, y: 320, text: "M", size: 30});
+
+    // Скорость
+    const speedBlockY = 400;
+    const speedLineHeight = 45; // расстояние между строками
+    const speedLabelX = infoBlockX;
+    const speedValueX = infoBlockX + 150;
+
+    const speedRows = [
+      { label: "FAST",    value: "→ PRO" },
+      { label: "MEDIUM",  value: "→ GOOD" },
+      { label: "SLOW",    value: "→ LEARN" },
+      { label: "STATIC",  value: "→ NONE" }
+    ];
+
+    // Заголовок
+    addText({x: infoBlockX, y: speedBlockY, text: "SPEED = SKILL LEVEL", size: 27, italic: true});
+
+    for (let i = 0; i < speedRows.length; i++) {
+      const y = speedBlockY + 60 + i * speedLineHeight;
+      // Слово (выравнивание по левому краю)
+      addText({x: speedLabelX, y, text: speedRows[i].label, anchor: "start"});
+      // Стрелка и пояснение (выравнивание по левому краю, но все стрелки на одной вертикали)
+      addText({x: speedValueX, y, text: speedRows[i].value, anchor: "start"});
+    }
+
+    // Легенда справа, компактно
+    const legendStartX = 700;
+    const legendStartY = 407;
+    const dx = 260; // компактнее!
+      legendData.forEach((item, i) => {
+      const cx = legendStartX + i * dx, cy = legendStartY;
+        // Орбита
+        const ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+        ellipse.setAttribute("cx", cx);
+        ellipse.setAttribute("cy", cy);
+        ellipse.setAttribute("rx", item.ellipse.rx);
+        ellipse.setAttribute("ry", item.ellipse.ry);
+        if (item.ellipse.rotate !== 0)
+          ellipse.setAttribute("transform", `rotate(${item.ellipse.rotate} ${cx} ${cy})`);
+        ellipse.setAttribute("stroke", "white");
+        ellipse.setAttribute("stroke-width", 1);
+        ellipse.setAttribute("fill", "none");
+      svg.appendChild(ellipse);
+      // Электрон на орбите под нужным углом
+      const electronAngle = (i === 0) ? 55 : 235;
+      const { x: ex, y: ey } = getEllipsePoint(
+        cx,
+        cy,
+        item.ellipse.rx,
+        item.ellipse.ry,
+        electronAngle,
+        item.ellipse.rotate || 0
+      );
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("r", 8.5);
+        dot.setAttribute("fill", item.color);
+      dot.setAttribute("cx", ex);
+      dot.setAttribute("cy", ey);
+      svg.appendChild(dot);
+        // Подпись
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", cx);
+      label.setAttribute("y", cy + 190);
+        label.setAttribute("font-size", 27);
+        label.setAttribute("font-family", "Jura, sans-serif");
+        label.setAttribute("fill", "white");
+        label.setAttribute("letter-spacing", "0.2em");
+        label.setAttribute("text-anchor", "middle");
+        label.textContent = item.label;
+      svg.appendChild(label);
+      });
+
+    // Массив атомов
+    const atomStartX = baseX, atomStartY = 900;
+      const cols = 5, rows = 4;
+      const atomWidth = 330, atomHeight = 420;
+    const orbitRadiusX = 126; // rx орбиты (горизонтальная)
+
+    const x1 = atomStartX;
+    const x2 = atomStartX + (cols - 1) * atomWidth + 2 * orbitRadiusX;
+
+    const separatorY = atomStartY - 240;
+    const separator = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    separator.setAttribute("x1", x1);
+    separator.setAttribute("y1", separatorY);
+    separator.setAttribute("x2", x2);
+    separator.setAttribute("y2", separatorY);
+    separator.setAttribute("stroke", "white");
+    separator.setAttribute("stroke-width", 1);
+    svg.appendChild(separator);
+
+      for (let idx = 0; idx < atoms.length; idx++) {
+        const atom = atoms[idx];
+        const col = idx % cols;
+        const row = Math.floor(idx / cols);
+      const cx = atomStartX + orbitRadiusX + col * atomWidth;
+      const cy = atomStartY + row * atomHeight;
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("transform", `translate(${cx},${cy})`);
+        // Ядро
+        const core = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        core.setAttribute("cx", 0); core.setAttribute("cy", 0); core.setAttribute("r", 14);
+        core.setAttribute("fill", atom.core);
+        group.appendChild(core);
+        // Орбиты
+        for (let i=0; i<4; i++) {
+          const ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+          ellipse.setAttribute("cx", 0); ellipse.setAttribute("cy", 0);
+          ellipse.setAttribute("rx", 42); ellipse.setAttribute("ry", 126);
+          if (orbitAngles[i] !== 0)
+            ellipse.setAttribute("transform", `rotate(${orbitAngles[i]})`);
+          ellipse.setAttribute("stroke", "white");
+          ellipse.setAttribute("stroke-width", 1);
+          ellipse.setAttribute("fill", "none");
+          group.appendChild(ellipse);
+        }
+        // Электроны
+        for (let i=0; i<4; i++) {
+          if (atom.speeds[i] > 0) {
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            if (orbitAngles[i] !== 0)
+              g.setAttribute("transform", `rotate(${orbitAngles[i]})`);
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("r", 8.5); circle.setAttribute("fill", electronColors[i]);
+          const animate = document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
+          animate.setAttribute("dur", atom.speeds[i]+"s");
+          animate.setAttribute("repeatCount", "indefinite");
+          animate.setAttribute("path", "M-42,0 A42,126 0 1,1 42,0 A42,126 0 1,1 -42,0");
+          circle.appendChild(animate);
+            g.appendChild(circle);
+            group.appendChild(g);
+          } else {
+            // Статичный электрон
+            const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          let cx = 42, cy = 0;
+          // Для SERGEY оранжевый электрон (i==1) — строго на 225°
+          if (atom.name === 'SERGEY' && i === 1) {
+            // Орбита: rx=42, ry=126, rotate=45°
+            const rx = 42, ry = 126, angle = 235, rotate = 45;
+            const theta = angle * Math.PI / 180;
+            let x = rx * Math.cos(theta);
+            let y = ry * Math.sin(theta);
+            const phi = rotate * Math.PI / 180;
+            cx = x * Math.cos(phi) - y * Math.sin(phi);
+            cy = x * Math.sin(phi) + y * Math.cos(phi);
+          } else if (orbitAngles[i] !== 0) {
+              g.setAttribute("transform", `rotate(${orbitAngles[i]})`);
+          }
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          circle.setAttribute("cx", cx); circle.setAttribute("cy", cy);
+            circle.setAttribute("r", 8.5); circle.setAttribute("fill", electronColors[i]);
+            g.appendChild(circle);
+            group.appendChild(g);
+          }
+        }
+        // Подпись
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", 0);
+        text.setAttribute("y", 190);
+        text.setAttribute("font-size", 27);
+        text.setAttribute("font-family", "Jura, sans-serif");
+        text.setAttribute("fill", "white");
+        text.setAttribute("letter-spacing", "0.2em");
+        text.setAttribute("text-anchor", "middle");
+        text.textContent = atom.name;
+        group.appendChild(text);
+        svg.appendChild(group);
+      }
+  </script>
+</body>
+</html>
